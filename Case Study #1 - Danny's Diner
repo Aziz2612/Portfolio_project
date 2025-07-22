@@ -17,7 +17,7 @@ ORDER BY customer_id;
 WITH First_product AS(
 SELECT 
  s.customer_id, m.product_name,order_date,
- RANK () OVER (PARTITION BY 	customer_id ORDER BY order_date) AS rank
+ RANK () OVER (PARTITION BY customer_id ORDER BY order_date) AS rank
 FROM sales s
 JOIN menu m 
 ON s.product_id = m.product_id
@@ -26,3 +26,24 @@ SELECT
 customer_id, product_name,order_date
 FROM First_product 
 WHERE rank = 1
+
+-- 4. What is the most purchased item on the menu and how many times was it purchased by all customers?
+WITH total_sales AS (
+SELECT 
+s.product_id, m.product_name, COUNT(s.product_id) AS total_sales
+FROM sales s
+JOIN menu m
+ON s.product_id = m.product_id
+GROUP BY s.product_id, m.product_name
+  ),
+ top_sold AS (
+    SELECT
+    product_id, product_name, total_sales,
+    RANK () OVER (ORDER BY total_sales DESC) AS rank
+    FROM total_sales
+    )
+    
+    SELECT product_id, product_name, total_sales 
+    FROM top_sold
+    WHERE rank = 1
+
