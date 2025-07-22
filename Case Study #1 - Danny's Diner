@@ -87,3 +87,54 @@ ON s.customer_id = me.customer_id
   customer_id, product_name, order_date
 FROM ranked_orders
 WHERE rank = 1
+
+-- 7. Which item was purchased just before the customer became a member?
+WITH orders_before_joining_date AS (
+  SELECT
+s.customer_id, m.product_name, s.order_date, me.join_date
+FROM sales s
+JOIN menu m
+ON s.product_id = m.product_id
+JOIN members me
+ON s.customer_id = me.customer_id
+  WHERE s.order_date < me.join_date
+  ),
+ ranked_orders AS (
+   SELECT *,
+   RANK () OVER (PARTITION BY customer_id ORDER BY order_date DESC) AS rank
+   FROM orders_before_joining_date
+   )
+  SELECT 
+  customer_id, product_name, order_date
+FROM ranked_orders
+WHERE rank = 1
+
+-- 8. What is the total items and amount spent for each member before they became a member?
+  SELECT
+s.customer_id, COUNT(s.product_id) AS tota_items_before_membership, SUM(m.price) AS amount_spent_before_membership
+FROM sales s
+JOIN menu m
+ON s.product_id = m.product_id
+JOIN members me
+ON s.customer_id = me.customer_id
+  WHERE s.order_date < me.join_date
+  GROUP BY s.customer_id
+  ORDER BY s.customer_id
+
+-- 9.  If each $1 spent equates to 10 points and sushi has a 2x points multiplier - how many points would each customer have?
+WITH product_points AS (
+SELECT
+product_id , product_name, price, 
+CASE 
+WHEN product_name = 'sushi' THEN (price * 20)
+ELSE (price * 10) END AS points
+FROM menu
+  )
+  SELECT s.customer_id, SUM (points) AS total_points
+  FROM sales s
+  JOIN product_points p
+  ON s.product_id = p.product_id
+  GROUP BY s.customer_id
+  ORDER BY s.customer_id
+  
+  
