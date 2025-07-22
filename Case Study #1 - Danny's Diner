@@ -66,3 +66,24 @@ GROUP BY customer_id, product_name
      customer_id, product_name
      FROM top_product
      WHERE rank = 1
+
+-- 6. Which item was purchased first by the customer after they became a member?
+WITH orders_after_joining_date AS (
+  SELECT
+s.customer_id, m.product_name, s.order_date, me.join_date
+FROM sales s
+JOIN menu m
+ON s.product_id = m.product_id
+JOIN members me
+ON s.customer_id = me.customer_id
+  WHERE s.order_date >= me.join_date
+  ),
+ ranked_orders AS (
+   SELECT *,
+   RANK () OVER (PARTITION BY customer_id ORDER BY order_date ASC) AS rank
+   FROM orders_after_joining_date
+   )
+  SELECT 
+  customer_id, product_name, order_date
+FROM ranked_orders
+WHERE rank = 1
