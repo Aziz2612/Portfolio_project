@@ -88,3 +88,14 @@ WITH pizzas_with_change AS (
   ON pwc.customer_id = pwoc.customer_id
  ORDER BY customer_id;
 
+-- 8. How many pizzas were delivered that had both exclusions and extras?
+SELECT 
+COUNT(pizza_id)
+FROM customer_orders c
+JOIN runner_orders r
+ON c.order_id = r.order_id
+WHERE 
+(exclusions IS NOT NULL AND exclusions <> 'null' AND exclusions <> '')
+AND 
+(extras IS NOT NULL AND extras <> 'null' AND extras <> '' AND extras <> 'NaN')
+AND r.pickup_time <> 'null';
