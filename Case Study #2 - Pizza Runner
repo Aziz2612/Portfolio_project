@@ -115,3 +115,14 @@ GROUP BY day
 ORDER BY total_orders;
 
 B. Runner and Customer Experience
+
+-- 2.What was the average time in minutes it took for each runner to arrive at the Pizza Runner HQ to pickup the order?
+SELECT
+ro.runner_id,
+ROUND(AVG(EXTRACT(EPOCH FROM (ro.pickup_time::timestamp - co.order_time::timestamp))/ 60)::NUMERIC,2) AS avg_pickup_time_minutes
+FROM customer_orders co
+JOIN runner_orders ro
+ON co.order_id = ro.order_id 
+WHERE ro.pickup_time IS NOT NULL  AND ro.pickup_time <> 'null'
+GROUP BY ro.runner_id
+ORDER BY ro.runner_id
