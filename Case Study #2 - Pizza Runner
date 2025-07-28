@@ -175,3 +175,27 @@ WHERE pickup_time IS NOT NULL AND pickup_time <> 'null'
   FROM runner_orders
   WHERE pickup_time IS NOT NULL AND pickup_time <> 'null'
 
+-- 7. What is the successful delivery percentage for each runner?
+  WITH delivered_orders AS (
+    SELECT runner_id , COUNT(order_id) AS count_of_delivered
+    FROM runner_orders 
+    WHERE pickup_time IS NOT NULL AND pickup_time <> 'null'
+     GROUP BY runner_id
+    ),
+    cancelled_orders AS (
+      SELECT runner_id , COUNT(order_id) AS count_of_cancelled
+      FROM runner_orders
+      WHERE pickup_time IS NULL OR pickup_time = 'null'
+      GROUP BY runner_id
+      )
+      SELECT 
+      COALESCE(dos.runner_id ,cos.runner_id) AS runner_id,
+      COALESCE(dos.count_of_delivered,0) AS count_of_delivered,
+      COALESCE(cos.count_of_cancelled,0) AS count_of_cancelled,
+      ROUND(
+        COALESCE(dos.count_of_delivered,0):: NUMERIC / 
+        (COALESCE(dos.count_of_delivered,0) + COALESCE(cos.count_of_cancelled,0)) * 100,2) AS delivery_percentage
+      FROM delivered_orders dos
+      FULL JOIN cancelled_orders cos 
+      ON dos.runner_id = cos.runner_id 
+      ORDER BY runner_id
