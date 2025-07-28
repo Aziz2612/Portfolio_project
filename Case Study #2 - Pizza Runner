@@ -207,3 +207,14 @@ WHERE pickup_time IS NOT NULL AND pickup_time <> 'null';
       FULL JOIN cancelled_orders cos 
       ON dos.runner_id = cos.runner_id 
       ORDER BY runner_id;
+
+C. Ingredient Optimisation
+
+-- 1. What are the standard ingredients for each pizza?
+SELECT
+pr.pizza_id , pt.topping_name
+FROM pizza_recipes pr
+JOIN unnest(string_to_array(pr.toppings, ',')) AS topping_id_str ON true
+JOIN pizza_toppings pt
+ON pt.topping_id = topping_id_str:: INT
+ORDER BY pr.pizza_id;
