@@ -148,3 +148,13 @@ SELECT
 FROM order_summary
 GROUP BY pizza_count
 ORDER BY pizza_count;
+
+-- 4. What was the average distance travelled for each customer?
+SELECT 
+co.customer_id, ROUND(AVG(REPLACE(ro.distance, 'km',''):: NUMERIC),2)
+FROM customer_orders co
+JOIN runner_orders ro
+ON co.order_id = ro.order_id
+WHERE ro.distance IS NOT NULL AND ro.distance <> 'null'
+GROUP BY co.customer_id 
+ORDER BY co.customer_id
