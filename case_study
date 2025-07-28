@@ -1,3 +1,5 @@
+This project analyzes transactional and behavioral data from a B2B e-commerce platform that connects FMCG suppliers with retailers which generates revenue primarily through commissions on orders and provides (BNPL) services to retailers. The goal of this analysis is to uncover business insights, measure performance across retailers and suppliers.
+
 -- Most active retailers by number and value of orders 
 SELECT r.id,r.name,r.retailer_type,COUNT(o.id) AS orders_count,SUM(o.total_initial_gross) AS orders_value
 FROM retailers r
