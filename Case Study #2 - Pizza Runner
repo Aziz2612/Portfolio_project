@@ -158,3 +158,10 @@ ON co.order_id = ro.order_id
 WHERE ro.distance IS NOT NULL AND ro.distance <> 'null'
 GROUP BY co.customer_id 
 ORDER BY co.customer_id
+
+-- 5. What was the difference between the longest and shortest delivery times for all orders?
+SELECT 
+MAX(REPLACE(REPLACE(REPLACE(duration, 'minutes', ''),'mins', ''), 'minute', ''):: NUMERIC) - 
+MIN(REPLACE(REPLACE(REPLACE(duration, 'minutes', ''),'mins', ''), 'minute', ''):: NUMERIC) AS delivery_time_difference
+FROM runner_orders
+WHERE pickup_time IS NOT NULL AND pickup_time <> 'null'
