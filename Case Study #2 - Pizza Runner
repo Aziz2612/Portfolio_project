@@ -116,6 +116,14 @@ ORDER BY total_orders;
 
 B. Runner and Customer Experience
 
+-- 1. How many runners signed up for each 1 week period? (i.e. week starts 2021-01-01)
+SELECT
+DATE_TRUNC('day', DATE '2021-01-01' + FLOOR(EXTRACT(EPOCH FROM(registration_date:: timestamp - DATE '2021-01-01'))/(7*24*60*60)) * INTERVAL '7 days') AS signup_week,
+COUNT(*) AS signedup_runners
+FROM runners
+GROUP BY signup_week
+ORDER BY signup_week;
+
 -- 2.What was the average time in minutes it took for each runner to arrive at the Pizza Runner HQ to pickup the order?
 SELECT
 ro.runner_id,
@@ -125,7 +133,7 @@ JOIN runner_orders ro
 ON co.order_id = ro.order_id 
 WHERE ro.pickup_time IS NOT NULL  AND ro.pickup_time <> 'null'
 GROUP BY ro.runner_id
-ORDER BY ro.runner_id
+ORDER BY ro.runner_id;
 
 -- 3. Is there any relationship between the number of pizzas and how long the order takes to prepare?
 WITH order_summary AS (
@@ -157,14 +165,14 @@ JOIN runner_orders ro
 ON co.order_id = ro.order_id
 WHERE ro.distance IS NOT NULL AND ro.distance <> 'null'
 GROUP BY co.customer_id 
-ORDER BY co.customer_id
+ORDER BY co.customer_id;
 
 -- 5. What was the difference between the longest and shortest delivery times for all orders?
 SELECT 
 MAX(REPLACE(REPLACE(REPLACE(duration, 'minutes', ''),'mins', ''), 'minute', ''):: NUMERIC) - 
 MIN(REPLACE(REPLACE(REPLACE(duration, 'minutes', ''),'mins', ''), 'minute', ''):: NUMERIC) AS delivery_time_difference
 FROM runner_orders
-WHERE pickup_time IS NOT NULL AND pickup_time <> 'null'
+WHERE pickup_time IS NOT NULL AND pickup_time <> 'null';
 
 -- 6. What was the average speed for each runner for each delivery and do you notice any trend for these values?
   SELECT 
@@ -173,7 +181,7 @@ WHERE pickup_time IS NOT NULL AND pickup_time <> 'null'
     (REPLACE(distance, 'km', '')::NUMERIC) /
     (REPLACE(REPLACE(REPLACE(duration, 'minutes', ''),'mins', ''), 'minute', ''):: NUMERIC/60),2) AS avg_speed_kmph
   FROM runner_orders
-  WHERE pickup_time IS NOT NULL AND pickup_time <> 'null'
+  WHERE pickup_time IS NOT NULL AND pickup_time <> 'null';
 
 -- 7. What is the successful delivery percentage for each runner?
   WITH delivered_orders AS (
@@ -198,4 +206,4 @@ WHERE pickup_time IS NOT NULL AND pickup_time <> 'null'
       FROM delivered_orders dos
       FULL JOIN cancelled_orders cos 
       ON dos.runner_id = cos.runner_id 
-      ORDER BY runner_id
+      ORDER BY runner_id;
