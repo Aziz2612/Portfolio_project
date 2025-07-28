@@ -165,3 +165,13 @@ MAX(REPLACE(REPLACE(REPLACE(duration, 'minutes', ''),'mins', ''), 'minute', ''):
 MIN(REPLACE(REPLACE(REPLACE(duration, 'minutes', ''),'mins', ''), 'minute', ''):: NUMERIC) AS delivery_time_difference
 FROM runner_orders
 WHERE pickup_time IS NOT NULL AND pickup_time <> 'null'
+
+-- 6. What was the average speed for each runner for each delivery and do you notice any trend for these values?
+  SELECT 
+  runner_id ,order_id,
+  ROUND(
+    (REPLACE(distance, 'km', '')::NUMERIC) /
+    (REPLACE(REPLACE(REPLACE(duration, 'minutes', ''),'mins', ''), 'minute', ''):: NUMERIC/60),2) AS avg_speed_kmph
+  FROM runner_orders
+  WHERE pickup_time IS NOT NULL AND pickup_time <> 'null'
+
