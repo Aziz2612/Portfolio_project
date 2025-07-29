@@ -236,3 +236,21 @@ SELECT
 topping_name , extras_count
 FROM extras_count
 WHERE rank = 1;
+
+-- 3. What was the most common exclusion?
+WITH exclusions_count AS (
+  SELECT
+pt.topping_name,
+COUNT (*) AS exclusions_count,
+  RANK () OVER (ORDER BY COUNT (*) DESC) AS rank
+FROM customer_orders co
+JOIN unnest(string_to_array(co.exclusions, ',')) AS exclusions_id_str ON true
+JOIN pizza_toppings pt 
+ON pt.topping_id = exclusions_id_str:: INT
+WHERE co.exclusions IS NOT NULL AND co.exclusions <> 'null'
+GROUP BY pt.topping_name
+)
+SELECT 
+topping_name , exclusions_count
+FROM exclusions_count
+WHERE rank = 1;
