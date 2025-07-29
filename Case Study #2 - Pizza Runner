@@ -218,3 +218,21 @@ JOIN unnest(string_to_array(pr.toppings, ',')) AS topping_id_str ON true
 JOIN pizza_toppings pt
 ON pt.topping_id = topping_id_str:: INT
 ORDER BY pr.pizza_id;
+
+-- 2. What was the most commonly added extra?
+WITH extras_count AS (
+  SELECT
+pt.topping_name,
+COUNT (*) AS extras_count,
+  RANK () OVER (ORDER BY COUNT (*) DESC) AS rank
+FROM customer_orders co
+JOIN unnest(string_to_array(co.extras, ',')) AS extras_id_str ON true
+JOIN pizza_toppings pt 
+ON pt.topping_id = extras_id_str:: INT
+WHERE co.extras IS NOT NULL AND co.extras <> 'null'
+GROUP BY pt.topping_name
+)
+SELECT 
+topping_name , extras_count
+FROM extras_count
+WHERE rank = 1;
